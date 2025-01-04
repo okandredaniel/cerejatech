@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Channel Activity Timeline</title>
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <h1 class="mt-8 text-4xl text-[#81e1b8]">Linha do tempo Cereja Tech</h1>
+
+    <div class="filter-buttons flex justify-center gap-4 mb-6">
+      <button
+        id="filterAll"
+        class="bg-gray-800 text-white py-2 px-4 rounded hover:bg-gray-700"
+      >
+        Todos
+      </button>
+      <button
+        id="filterLong"
+        class="bg-gray-800 text-white py-2 px-4 rounded hover:bg-gray-700"
+      >
+        Vídeos Longos
+      </button>
+      <button
+        id="filterShorts"
+        class="bg-gray-800 text-white py-2 px-4 rounded hover:bg-gray-700"
+      >
+        Shorts
+      </button>
+      <button
+        id="filterLive"
+        class="bg-gray-800 text-white py-2 px-4 rounded hover:bg-gray-700"
+      >
+        Live
+      </button>
+    </div>
+
+    <div class="timeline flex justify-center flex-wrap gap-6 p-8">
+      <!-- Timeline items will be dynamically inserted here -->
+    </div>
+
+    <script src="video-data.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
