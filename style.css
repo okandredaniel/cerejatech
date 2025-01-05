@@ -24,26 +24,40 @@ h2 {
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  gap: 10px;
+}
+
+.year-group {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+.year-header {
+  text-align: left;
 }
 
 .year-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 10px;
+  align-items: center;
   justify-content: flex-start;
-  margin-bottom: 20px;
   width: 100%;
 }
 
+.year-group:nth-child(1) .year-row {
+  justify-content: flex-end;
+}
+
 .month {
-  width: 90px;
-  height: 60px;
+  width: 110px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  font-weight: bold;
-  text-transform: uppercase;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
