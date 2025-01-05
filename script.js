@@ -15,10 +15,24 @@ const formatDate = (date) =>
 
 const months = [];
 let currentDate = new Date(startDate);
-while (currentDate <= endDate) {
+while (
+  currentDate.getFullYear() < endDate.getFullYear() ||
+  (currentDate.getFullYear() === endDate.getFullYear() &&
+    currentDate.getMonth() <= endDate.getMonth())
+) {
   months.push(formatDate(currentDate));
   currentDate.setMonth(currentDate.getMonth() + 1);
 }
+
+const groupedMonths = {};
+months.forEach((m) => {
+  const [mm, yy] = m.split("/");
+  const fullYear = `20${yy}`;
+  if (!groupedMonths[fullYear]) {
+    groupedMonths[fullYear] = [];
+  }
+  groupedMonths[fullYear].push(m);
+});
 
 let videoFilter = "all";
 
@@ -92,29 +106,28 @@ const syncUrlAndLocalStorage = (month, filter) => {
   localStorage.setItem("videoFilter", filter);
 };
 
+const monthDivs = {};
+
 const updateMonthStatus = (month, videos) => {
-  const monthIndex = months.indexOf(month);
-  if (monthIndex === -1) return;
-  const monthDiv = document.querySelector(
-    `.month:nth-child(${monthIndex + 1})`
-  );
+  const div = monthDivs[month];
+  if (!div) return;
   const filteredVideos = videos.filter(
     (video) => videoFilter === "all" || video.type === videoFilter
   );
   if (filteredVideos.length === 0) {
-    monthDiv.classList.remove("bg-green-500");
-    monthDiv.classList.add("bg-red-500");
+    div.classList.remove("bg-green-500");
+    div.classList.add("bg-red-500");
   } else {
-    monthDiv.classList.add("bg-green-500");
-    monthDiv.classList.remove("bg-red-500");
+    div.classList.add("bg-green-500");
+    div.classList.remove("bg-red-500");
   }
-  monthDiv.textContent = `${month} (${filteredVideos.length})`;
+  div.textContent = `${month} (${filteredVideos.length})`;
 };
 
 const updateTimeline = () => {
-  months.forEach((month) => {
-    const videos = videoData[month] || [];
-    updateMonthStatus(month, videos);
+  months.forEach((m) => {
+    const videos = videoData[m] || [];
+    updateMonthStatus(m, videos);
   });
 };
 
@@ -145,32 +158,41 @@ const applyFilter = (filter) => {
   syncUrlAndLocalStorage(selectedMonth || "", filter);
 };
 
-months.forEach((month) => {
-  const monthDiv = document.createElement("div");
-  const videos = videoData[month] || [];
-  monthDiv.classList.add(
-    "month",
-    "cursor-pointer",
-    "text-center",
-    "rounded-lg",
-    "p-2",
-    "transition-all",
-    "duration-300",
-    "hover:scale-105",
-    "hover:shadow-md",
-    videos.length ? "bg-green-500" : "bg-red-500",
-    "text-white"
-  );
-  monthDiv.textContent = `${month} (${videos.length})`;
-  monthDiv.addEventListener("click", () => {
-    loadVideos(videos, month);
-    const allMonths = document.querySelectorAll(".month");
-    allMonths.forEach((m) => m.classList.remove("selected"));
-    monthDiv.classList.add("selected");
-    syncUrlAndLocalStorage(month, videoFilter);
+Object.keys(groupedMonths).forEach((year) => {
+  const yearRow = document.createElement("div");
+  yearRow.classList.add("year-row");
+
+  groupedMonths[year].forEach((m) => {
+    const videos = videoData[m] || [];
+    const monthDiv = document.createElement("div");
+    monthDivs[m] = monthDiv;
+    monthDiv.classList.add(
+      "month",
+      "cursor-pointer",
+      "text-center",
+      "rounded-lg",
+      "p-2",
+      "transition-all",
+      "duration-300",
+      "hover:scale-105",
+      "hover:shadow-md",
+      videos.length ? "bg-green-500" : "bg-red-500",
+      "text-white"
+    );
+    monthDiv.textContent = `${m} (${videos.length})`;
+    monthDiv.addEventListener("click", () => {
+      loadVideos(videos, m);
+      Object.values(monthDivs).forEach((div) =>
+        div.classList.remove("selected")
+      );
+      monthDiv.classList.add("selected");
+      syncUrlAndLocalStorage(m, videoFilter);
+    });
+    yearRow.appendChild(monthDiv);
+    updateMonthStatus(m, videos);
   });
-  timelineContainer.appendChild(monthDiv);
-  updateMonthStatus(month, videos);
+
+  timelineContainer.appendChild(yearRow);
 });
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -186,14 +208,11 @@ if (selectedFilter) {
 }
 
 if (selectedMonth && months.includes(selectedMonth)) {
-  const monthIndex = months.indexOf(selectedMonth);
-  const monthDiv = document.querySelector(
-    `.month:nth-child(${monthIndex + 1})`
-  );
-  if (monthDiv) {
+  const div = monthDivs[selectedMonth];
+  if (div) {
     const videos = videoData[selectedMonth] || [];
     loadVideos(videos, selectedMonth);
-    monthDiv.classList.add("selected");
+    div.classList.add("selected");
   }
 }
 
